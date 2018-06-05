@@ -7,17 +7,17 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
+  font-family: 'Space Mono', monospace;
   align-items: center;
-  
-}
-svg {
-  background-color: pink;
+  background-color: white;
 }
 
-
+#svg-container {
+  border: 1px solid black;
+  box-shadow: 3px 3px 20px rgba(0, 0, 0, .3);
+}
 .circle:hover {
-  fill: lime;
+  fill: #F79256;
 }
 
 div.tooltip {	

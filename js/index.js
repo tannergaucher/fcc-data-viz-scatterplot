@@ -6,7 +6,17 @@ stringToTime = (dataset) => {
   let minutes = Number(time[0])
   let seconds = Number(time[1] / 60)
   return minutes + seconds
-} 
+}
+
+// test = (timeStr) => {  
+//   const parseTime = d3.timeParse("%M:%S")
+//   const date = new Date(parseTime(timeStr))
+//   const formatTime = d3.timeFormat("%M:%S")
+//   const minutesSeconds = formatTime(date)
+//   console.log(formatTime(date))
+//   console.log(typeof minutesSeconds)
+// }
+
 
 fetch(myRequest)
   .then(response => {
@@ -17,13 +27,15 @@ fetch(myRequest)
     }
   })
   .then(response => {
-    response.forEach(obj => dataset.push(obj))
+    response.forEach(data => dataset.push(data))
     console.table(dataset)
-    plot()  
+
+    plot()
+    // test("36:56")  
   })
 
 const h = 500
-const w = 700
+const w = 800
 const p = 0
 
 //x axis: time d.Time
@@ -57,6 +69,7 @@ plot = () => {
                   
   const xAxis = d3.axisBottom(xScale)
                     //ticks
+                  
                     
   const yAxis = d3.axisLeft(yScale)
                     //.ticks
@@ -67,10 +80,11 @@ plot = () => {
     .enter()
     .append('circle')
     .attr('class', 'circle')
-    .attr('fill', (d) => d.Doping ? 'tomato' : 'dodgerblue')
+    .attr('fill', (d) => d.Doping ? '#CC3937' : '#068B9D')
     .attr('cx', (d) => xScale(d.Year))
     .attr('cy', (d) => yScale(stringToTime(d)))
-    .attr('r', (d) => 6)
+    .attr('r', (d) => 7)
+    .style("stroke", "black")
     .on('mouseover', (d) => {
         div.transition()
               .duration(200)
@@ -96,7 +110,7 @@ plot = () => {
       .attr("class", "x-axis")
       .attr("transform", "translate(0, "+ h +")")
       .call(xAxis)
-      
+
     svg.append("g")
       .attr("class", "y-axis")
       .call(yAxis)
