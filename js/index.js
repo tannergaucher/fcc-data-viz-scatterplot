@@ -1,23 +1,6 @@
 let dataset = []
 let myRequest = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json'
 
-stringToTime = (dataset) => {
-  let time = dataset.Time.split(":")
-  let minutes = Number(time[0])
-  let seconds = Number(time[1] / 60)
-  return minutes + seconds
-}
-
-// test = (timeStr) => {  
-//   const parseTime = d3.timeParse("%M:%S")
-//   const date = new Date(parseTime(timeStr))
-//   const formatTime = d3.timeFormat("%M:%S")
-//   const minutesSeconds = formatTime(date)
-//   console.log(formatTime(date))
-//   console.log(typeof minutesSeconds)
-// }
-
-
 fetch(myRequest)
   .then(response => {
     if (response.status === 200) {
@@ -28,18 +11,19 @@ fetch(myRequest)
   })
   .then(response => {
     response.forEach(data => dataset.push(data))
-    console.table(dataset)
+     console.table(dataset)
 
     plot()
-    // test("36:56")  
   })
+    
+parseMinutesSeconds = (d) => {
+  let parseTime = d3.timeParse('%M:%S')
+  return new Date(parseTime(d))
+}
 
 const h = 500
 const w = 800
 const p = 0
-
-//x axis: time d.Time
-//y axis years d.Year
 
 plot = () => {
   
@@ -56,39 +40,44 @@ plot = () => {
                   .style('opacity', 0)
                   
               
-  const xScale = d3.scaleLinear()
-                  .domain([1993, 2015])
+  const xScale = d3.scaleTime()
+                  .domain([new Date('1993'), new Date('2016')])
                   .range([p, w - p])
                   
-  const yScale = d3.scaleLinear()
-                  .domain([
-                    d3.min(dataset, (d) => stringToTime(d)),
-                    d3.max(dataset, (d) => stringToTime(d))
+  const yScale = d3.scaleTime()
+                  .domain([ 
+                    parseMinutesSeconds('36:50'), 
+                    parseMinutesSeconds('39:50')
                   ])
-                  .range([p, h - p])
-                  
-  const xAxis = d3.axisBottom(xScale)
-                    //ticks
-                  
-                    
-  const yAxis = d3.axisLeft(yScale)
-                    //.ticks
+                  .range([p, h - p])   
 
-  //make circles for data
+  const xAxis = d3.axisBottom(xScale)
+                    .tickFormat(d3.timeFormat('%Y'))
+
+                                  
+  const yAxis = d3.axisLeft(yScale)
+                    .tickFormat(d3.timeFormat('%M:%S'))
+
   svg.selectAll('circle')
     .data(dataset)
     .enter()
     .append('circle')
     .attr('class', 'circle')
     .attr('fill', (d) => d.Doping ? '#CC3937' : '#068B9D')
-    .attr('cx', (d) => xScale(d.Year))
-    .attr('cy', (d) => yScale(stringToTime(d)))
+    .attr('cx', (d) => {
+      let parseTime = d3.timeParse('%Y')
+      xScale(parseTime(d.Year))
+      return xScale(parseTime(d.Year))
+    })
+    .attr('cy', (d) => {
+      return yScale(parseMinutesSeconds(d.Time))  
+    })
     .attr('r', (d) => 7)
-    .style("stroke", "black")
+    .style('stroke', 'black')
     .on('mouseover', (d) => {
         div.transition()
-              .duration(200)
-              .style("opacity", .9)
+           .duration(200)
+           .style('opacity', .9)
         div.html(`
           ${d.Name}: ${d.Nationality}, ${d.Year}
           <br>
@@ -97,24 +86,23 @@ plot = () => {
           ${d.Doping}
           `
         )
-          .style("left", (d3.event.pageX) + "px")
-          .style("top", (d3.event.pageY) - 30 + "px")
+          .style('left', (d3.event.pageX) + 'px')
+          .style('top', (d3.event.pageY) - 30 + 'px')
     })
     .on('mouseout', (d) => {
       div.transition()
         .duration(500)
-        .style("opacity", 0)
+        .style('opacity', 0)
     })
     
-    svg.append("g")
-      .attr("class", "x-axis")
-      .attr("transform", "translate(0, "+ h +")")
+    svg.append('g')
+      .attr('class', 'x-axis')
+      .attr('transform', 'translate(0, '+ h +')')
       .call(xAxis)
 
-    svg.append("g")
-      .attr("class", "y-axis")
+    svg.append('g')
+      .attr('class', 'y-axis')
       .call(yAxis)
-      
       
 }
 
